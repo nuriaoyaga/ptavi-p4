@@ -8,7 +8,8 @@ import socket
 import sys
 
 # Cliente UDP simple.
-
+if len(sys.argv) != 6:
+    sys.exit("Usage: client.py ip puerto register sip_address expires_value")
 # Dirección IP del servidor.
 SERVER = sys.argv[1]
 try:
