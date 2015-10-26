@@ -19,6 +19,10 @@ except ValueError:
 # Contenido que vamos a enviar
 METODO = sys.argv[3].upper()
 USUARIO = sys.argv[4]
+try:
+    EXPIRES = sys.argv[5]
+except ValueError:
+    sys.exit("Expires must be an integer")
 
 # Creamos el socket, lo configuramos y lo atamos a un servidor/puerto
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -28,8 +32,10 @@ try:
 except socket.gaierror:
     sys.exit("Invalid IP")
 
-print("Enviando: " + METODO + ' sip:' + USUARIO + ' SIP/2.0')
-my_socket.send(bytes(METODO, 'utf-8') + b' sip:'+ bytes(USUARIO, 'utf-8') + b' SIP/2.0\r\n\r\n')
+print("Enviando: " + METODO + ' sip:' + USUARIO + ' SIP/2.0' + ' Expires:' + EXPIRES)
+my_socket.send(bytes(METODO, 'utf-8') + b' sip:'+ bytes(USUARIO, 'utf-8') +
+               b' SIP/2.0\r\n' + b'Expires:' +
+               bytes(EXPIRES, 'utf-8') + b'\r\n\r\n')
 try:
     data = my_socket.recv(1024)
 except ConnectionRefusedError:
