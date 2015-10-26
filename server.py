@@ -7,30 +7,35 @@ Clase (y programa principal) para un servidor de eco en UDP simple
 import socketserver
 import sys
 
-class EchoHandler(socketserver.DatagramRequestHandler):
+class SIPRegisterHandler(socketserver.DatagramRequestHandler):
     """
     Echo server class
     """
-
+    ips_dic = {}
     def handle(self):
-        # Escribe dirección y puerto del cliente (de tupla client_address)
-        print(self.client_address)
-        self.wfile.write(b"Hemos recibido tu peticion")
         while 1:
             # Leyendo línea a línea lo que nos envía el cliente
             line = self.rfile.read()
-            print("El cliente nos manda " + line.decode('utf-8'))
-
-            # Si no hay más líneas salimos del bucle infinito
+            instrucciones_list = line.decode('utf-8').split(' ')
+            if instrucciones_list[0] == 'REGISTER':
+                usuario = instrucciones_list[1].split(':')[1]
+                self.ips_dic[usuario] = self.client_address[0]
+                print(self.ips_dic)
+                self.wfile.write(b'SIP/2.0 200 OK\r\n\r\n')
             if not line:
                 break
+            else:
+                self.wfile.write(b"Hemos recibido tu peticion")
+                print("El cliente nos manda " + line.decode('utf-8'))
+
+
 
 if __name__ == "__main__":
     try:
-        port = int(sys.argv[1])
+        PORT = int(sys.argv[1])
     except ValueError:
         sys.exit("Invalid Port")
     # Creamos servidor de eco y escuchamos
-    serv = socketserver.UDPServer(('', port), EchoHandler)
+    serv = socketserver.UDPServer(('', PORT), SIPRegisterHandler)
     print("Lanzando servidor UDP de eco...")
     serv.serve_forever()
