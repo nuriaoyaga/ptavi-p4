@@ -19,14 +19,17 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             instrucciones_list = line.decode('utf-8').split(' ')
             if instrucciones_list[0] == 'REGISTER':
                 usuario = instrucciones_list[1].split(':')[1]
+                expires = int(instrucciones_list[2].split(':')[1])
                 self.ips_dic[usuario] = self.client_address[0]
-                print(self.ips_dic)
+                if expires == 0:
+                    del self.ips_dic[usuario]
                 self.wfile.write(b'SIP/2.0 200 OK\r\n\r\n')
-            if not line:
-                break
+                print(self.ips_dic)
             else:
                 self.wfile.write(b"Hemos recibido tu peticion")
                 print("El cliente nos manda " + line.decode('utf-8'))
+            if not line:
+                break
 
 
 
