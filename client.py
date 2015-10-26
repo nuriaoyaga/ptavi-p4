@@ -5,24 +5,34 @@ Programa cliente que abre un socket a un servidor
 """
 
 import socket
+import sys
 
 # Cliente UDP simple.
 
 # Dirección IP del servidor.
-SERVER = 'localhost'
-PORT = 6001
+server = sys.argv[1]
+try:
+    port = int(sys.argv[2])
+except ValueError:
+    sys.exit("Invalid Port")
 
 # Contenido que vamos a enviar
-LINE = '¡Hola mundo!'
+line = sys.argv[3]
 
 # Creamos el socket, lo configuramos y lo atamos a un servidor/puerto
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-my_socket.connect((SERVER, PORT))
+try:
+    my_socket.connect((server, port))
+except socket.gaierror:
+    sys.exit("Invalid IP")
 
-print("Enviando: " + LINE)
-my_socket.send(bytes(LINE, 'utf-8') + b'\r\n')
-data = my_socket.recv(1024)
+print("Enviando: " + line)
+my_socket.send(bytes(line, 'utf-8') + b'\r\n')
+try:
+    data = my_socket.recv(1024)
+except ConnectionRefusedError:
+    sys.exit("Conection refused")
 
 print('Recibido -- ', data.decode('utf-8'))
 print("Terminando socket...")
