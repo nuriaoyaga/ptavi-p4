@@ -10,25 +10,26 @@ import sys
 # Cliente UDP simple.
 
 # Dirección IP del servidor.
-server = sys.argv[1]
+SERVER = sys.argv[1]
 try:
-    port = int(sys.argv[2])
+    PORT = int(sys.argv[2])
 except ValueError:
     sys.exit("Invalid Port")
 
 # Contenido que vamos a enviar
-line = sys.argv[3]
+METODO = sys.argv[3].upper()
+USUARIO = sys.argv[4]
 
 # Creamos el socket, lo configuramos y lo atamos a un servidor/puerto
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 try:
-    my_socket.connect((server, port))
+    my_socket.connect((SERVER, PORT))
 except socket.gaierror:
     sys.exit("Invalid IP")
 
-print("Enviando: " + line)
-my_socket.send(bytes(line, 'utf-8') + b'\r\n')
+print("Enviando: " + METODO + ' sip:' + USUARIO + ' SIP/2.0')
+my_socket.send(bytes(METODO, 'utf-8') + b' sip:'+ bytes(USUARIO, 'utf-8') + b' SIP/2.0\r\n\r\n')
 try:
     data = my_socket.recv(1024)
 except ConnectionRefusedError:
