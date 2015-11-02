@@ -22,6 +22,8 @@ METODO = sys.argv[3].upper()
 USUARIO = sys.argv[4]
 try:
     EXPIRES = sys.argv[5]
+    if int(EXPIRES) < 0:
+        sys.exit("Expires must be >0")
 except ValueError:
     sys.exit("Expires must be an integer")
 
