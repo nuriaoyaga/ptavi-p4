@@ -33,8 +33,9 @@ try:
 except socket.gaierror:
     sys.exit("Invalid IP")
 
-print("Enviando: " + METODO + ' sip:' + USUARIO + ' SIP/2.0' + ' Expires:' + EXPIRES)
-my_socket.send(bytes(METODO, 'utf-8') + b' sip:'+ bytes(USUARIO, 'utf-8') +
+print("Enviando: " + METODO + ' sip:' + USUARIO + ' SIP/2.0' + ' Expires:'
+      + EXPIRES)
+my_socket.send(bytes(METODO, 'utf-8') + b' sip:' + bytes(USUARIO, 'utf-8') +
                b' SIP/2.0\r\n' + b'Expires:' +
                bytes(EXPIRES, 'utf-8') + b'\r\n\r\n')
 try:
