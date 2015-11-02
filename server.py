@@ -8,13 +8,14 @@ import socketserver
 import sys
 import json
 import time
-import calendar
+
 
 class SIPRegisterHandler(socketserver.DatagramRequestHandler):
     """
     Echo server class
     """
     users_dic = {}
+
     def handle(self):
         caract_dic = {}
         while 1:
@@ -22,21 +23,27 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             line = self.rfile.read()
             instrucciones_list = line.decode('utf-8').split(' ')
             if instrucciones_list[0] == 'REGISTER':
+                self.json2registered()
                 usuario = instrucciones_list[1].split(':')[1]
                 expires = int(instrucciones_list[2].split(':')[1])
                 caract_dic["address"] = self.client_address[0]
-                timeexp = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time()+expires))
+                expiration = time.gmtime(int(time.time()) + expires)
+                timeexp = time.strftime('%Y-%m-%d %H:%M:%S', expiration)
                 caract_dic["expires"] = timeexp
                 self.users_dic[usuario] = caract_dic
                 if expires == 0:
                     del self.users_dic[usuario]
                 self.wfile.write(b'SIP/2.0 200 OK\r\n\r\n')
-                timenow = time.gmtime(time.time())
+                now = time.gmtime(time.time())
+                timenow = time.strftime('%Y-%m-%d %H:%M:%S', now)
+                Expires_list = []
                 for user in self.users_dic:
-                    carac = self.users_dic[user]
-                    
-                    if timenow >= calendar.timegm(expires):
-                        del self.users_dic[user]
+                    atributes = self.users_dic[user]
+                    timeexpiration = atributes["expires"]
+                    if timenow > timeexpiration:
+                        Expires_list.append(user)
+                for expired in Expires_list:
+                    del self.users_dic[expired]
                 self.register2json()
             else:
                 self.wfile.write(b"Hemos recibido tu peticion")
@@ -44,12 +51,17 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             if not line:
                 break
 
-
     def register2json(self):
         with open('registered.json', 'w') as fichero_json:
-         json.dump(self.users_dic, fichero_json, sort_keys=True, indent=4, separators=(',', ':'))
+            json.dump(self.users_dic, fichero_json, sort_keys=True, indent=4,
+                      separators=(',', ':'))
 
-
+    def json2registered(self):
+        try:
+            fich_json = open('registered.json', 'r')
+            self.users_dic = json.load(fich_json)
+        except:
+            self.users_dic = {}
 
 
 if __name__ == "__main__":
