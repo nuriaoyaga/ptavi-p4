@@ -52,11 +52,18 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                 break
 
     def register2json(self):
+        """
+        Método que crea un documento json con los usuarios registrados
+        """
         with open('registered.json', 'w') as fichero_json:
             json.dump(self.users_dic, fichero_json, sort_keys=True, indent=4,
                       separators=(',', ':'))
 
     def json2registered(self):
+        """
+        Método que crea un diccionario con los usuarios registrados
+        anteriormente
+        """
         try:
             fich_json = open('registered.json', 'r')
             self.users_dic = json.load(fich_json)
